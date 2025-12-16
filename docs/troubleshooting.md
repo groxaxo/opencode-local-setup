@@ -161,7 +161,34 @@ Error: Cannot find module '/home/user/.config/opencode/sync-local-models.mjs'
 
 2. Or manually copy the script:
    ```bash
-   cp scripts/sync-local-models.mjs ~/.config/opencode/
+   cp scripts/sync-provider.mjs ~/.config/opencode/
+   ```
+
+### 8. "Provider not found" or "Model not available"
+
+**Symptom:**
+```
+❌ Error: Provider "xyz" not found
+```
+
+**Cause:** Provider not synced yet or API key missing.
+
+**Solution:**
+1. Sync specific provider:
+   ```bash
+   export LOCAL_API_BASE="https://api.provider.com/v1"
+   export API_KEY="your-key"
+   node scripts/sync-provider.mjs
+   ```
+
+2. Or sync all providers:
+   ```bash
+   ./scripts/sync-all-providers.sh
+   ```
+
+3. Verify provider exists:
+   ```bash
+   cat ~/.config/opencode/opencode.json | jq '.provider | keys'
    ```
 
 ## Debugging Tips
