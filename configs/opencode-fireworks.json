@@ -1,0 +1,28 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "providers": {
+    "fireworks": {
+      "baseURL": "https://api.fireworks.ai/inference/v1",
+      "models": {
+        "deepseek-v3p2": {
+          "name": "DeepSeek V3.2"
+        }
+      }
+    },
+    "lmstudio": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "LM Studio",
+      "options": {
+        "baseURL": "http://localhost:1234/v1"
+      },
+      "models": {}
+    }
+  },
+  "agents": {
+    "coder": {
+      "provider": "fireworks",
+      "model": "accounts/fireworks/models/deepseek-v3-0324",
+      "contextWindow": 160000
+    }
+  }
+}
