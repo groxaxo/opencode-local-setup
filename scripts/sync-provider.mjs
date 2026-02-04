@@ -1,22 +1,28 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+// Import provider definitions
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const { PROVIDERS, detectProviderFromUrl, getApiKeyForProvider, getAllProviders } = await import(
+  path.join(__dirname, "providers.mjs")
+);
 
 // Configure your API endpoint via environment variable
 const baseURL = process.env.LOCAL_API_BASE?.replace(/\/$/, "") ?? "http://127.0.0.1:1234/v1";
 
-// Get the specific API key for this endpoint
-let apiKey = process.env.FIREWORKS_API_KEY;
-if (baseURL.includes('openai.com')) {
-  apiKey = process.env.OPENAI_API_KEY;
-} else if (baseURL.includes('x.ai')) {
-  apiKey = process.env.XAI_API_KEY;
-} else if (baseURL.includes('deepseek.com')) {
-  apiKey = process.env.DEEPSEEK_API_KEY;
-} else if (baseURL.includes('fireworks.ai')) {
-  apiKey = process.env.FIREWORKS_API_KEY;
-} else if (baseURL.includes('dashscope')) {
-  apiKey = process.env.OLLAMA_API_KEY;
+// Auto-detect provider from URL
+const detectedProvider = detectProviderFromUrl(baseURL);
+const providerName = detectedProvider?.id ?? "local";
+const displayName = detectedProvider?.name ?? "Local Provider";
+
+// Get API key from environment using provider definitions
+let apiKey = getApiKeyForProvider(detectedProvider);
+
+// Fallback to generic env vars for compatibility
+if (!apiKey) {
+  apiKey = process.env.LOCAL_API_KEY || process.env.API_KEY;
 }
 
 const configPath = process.env.OPENCODE_CONFIG 
@@ -29,6 +35,7 @@ const configPath = process.env.OPENCODE_CONFIG
 const modelsURL = `${baseURL}/models`;
 
 console.log(`🔄 Syncing models from: ${baseURL}`);
+console.log(`📊 Detected provider: ${displayName} (${providerName})`);
 if (apiKey) {
   console.log(`🔑 Using API key (length: ${apiKey.length})`);
 }
@@ -73,35 +80,13 @@ try {
   cfg.$schema ??= "https://opencode.ai/config.json";
   cfg.provider ??= {};
   
-  // Auto-detect provider name
-  let providerName = 'local';
-  let displayName = 'Local Provider';
-  
-  if (baseURL.includes('fireworks.ai')) {
-    providerName = 'fireworks';
-    displayName = 'Fireworks AI';
-  } else if (baseURL.includes('openai.com')) {
-    providerName = 'openai';
-    displayName = 'OpenAI';
-  } else if (baseURL.includes('deepseek.com')) {
-    providerName = 'deepseek';
-    displayName = 'DeepSeek';
-  } else if (baseURL.includes('x.ai')) {
-    providerName = 'xai';
-    displayName = 'xAI (Grok)';
-  } else if (baseURL.includes('anthropic')) {
-    providerName = 'anthropic';
-    displayName = 'Anthropic';
-  } else if (baseURL.includes('dashscope')) {
-    providerName = 'alibaba';
-    displayName = 'Alibaba DashScope';
-  }
-  
-  console.log(`📊 Provider: ${displayName} (${providerName})`);
-  console.log(`   ${baseURL}`)
+  console.log(`   ${baseURL}`);
 
+  // Use detected provider settings or defaults
+  const npmPackage = detectedProvider?.npm ?? "@ai-sdk/openai-compatible";
+  
   cfg.provider[providerName] ??= {
-    npm: "@ai-sdk/openai-compatible",
+    npm: npmPackage,
     name: displayName,
     options: { baseURL },
     models: {}
