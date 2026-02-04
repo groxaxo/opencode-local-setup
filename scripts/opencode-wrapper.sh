@@ -25,11 +25,11 @@ sync-models() {
   fi
 }
 
-# Convenience shortcuts for common providers/models
-deepseek() {
-  opencode -p fireworks -m deepseek-v3p2 "$@"
-}
+# ============================================
+# Provider Shortcuts
+# ============================================
 
+# Local provider shortcuts
 local() {
   local model="${1:-}"
   if [ -n "$model" ]; then
@@ -55,11 +55,60 @@ vllm() {
   opencode -p local "$@"
 }
 
+# Cloud provider shortcuts
+deepseek() {
+  opencode -p deepseek "$@"
+}
+
+fireworks() {
+  opencode -p fireworks "$@"
+}
+
+groq() {
+  opencode -p groq "$@"
+}
+
+together() {
+  opencode -p together "$@"
+}
+
+mistral() {
+  opencode -p mistral "$@"
+}
+
+xai() {
+  opencode -p xai "$@"
+}
+
+openrouter() {
+  opencode -p openrouter "$@"
+}
+
+perplexity() {
+  opencode -p perplexity "$@"
+}
+
 # List available local models
 list-local-models() {
   local api_base="${LOCAL_API_BASE:-http://localhost:1234/v1}"
   echo "Listing models from: $api_base"
   curl -s "$api_base/models" 2>&1 | grep -o '"id":"[^"]*"' | cut -d'"' -f4
+}
+
+# List all synced providers
+list-providers() {
+  local config_file="${OPENCODE_CONFIG:-$OPENCODE_CONFIG_DIR/opencode.json}"
+  if [ -f "$config_file" ]; then
+    echo "📦 Configured Providers:"
+    if command -v jq &> /dev/null; then
+      jq -r '.provider | to_entries[] | "   • \(.key): \(.value.name // .key)"' "$config_file" 2>/dev/null
+    else
+      grep -o '"[^"]*":' "$config_file" | head -20 | tr -d '":' | sed 's/^/   • /'
+    fi
+  else
+    echo "Config not found: $config_file"
+    return 1
+  fi
 }
 
 # Show OpenCode config
@@ -85,14 +134,34 @@ code-config-edit() {
   fi
 }
 
+# Quick auth login
+code-login() {
+  command opencode auth login
+}
+
+# List authenticated providers
+code-auth() {
+  command opencode auth list
+}
+
 # Export functions for use in subshells
 export -f opencode
 export -f sync-models
-export -f deepseek
 export -f local
 export -f lmstudio
 export -f ollama
 export -f vllm
+export -f deepseek
+export -f fireworks
+export -f groq
+export -f together
+export -f mistral
+export -f xai
+export -f openrouter
+export -f perplexity
 export -f list-local-models
+export -f list-providers
 export -f code-config
 export -f code-config-edit
+export -f code-login
+export -f code-auth

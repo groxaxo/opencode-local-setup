@@ -2,6 +2,43 @@
 
 ## Environment Variables
 
+### Provider API Keys
+
+Set these environment variables for the providers you want to use:
+
+```bash
+# Cloud Providers
+export OPENAI_API_KEY="sk-..."           # OpenAI
+export ANTHROPIC_API_KEY="sk-ant-..."    # Anthropic (API key method)
+export FIREWORKS_API_KEY="fw_..."         # Fireworks AI
+export DEEPSEEK_API_KEY="sk-..."          # DeepSeek
+export XAI_API_KEY="xai-..."              # xAI (Grok)
+export GROQ_API_KEY="gsk_..."             # Groq
+export TOGETHER_API_KEY="..."             # Together AI
+export MISTRAL_API_KEY="..."              # Mistral AI
+export OPENROUTER_API_KEY="sk-or-..."     # OpenRouter
+export PERPLEXITY_API_KEY="pplx-..."      # Perplexity
+export GOOGLE_API_KEY="..."               # Google/Gemini
+export GEMINI_API_KEY="..."               # Alternative for Google
+export COHERE_API_KEY="..."               # Cohere
+export VERCEL_API_KEY="..."               # Vercel AI Gateway
+
+# Azure OpenAI
+export AZURE_OPENAI_API_KEY="..."
+export AZURE_OPENAI_ENDPOINT="https://your-resource.openai.azure.com"
+
+# Cloudflare
+export CLOUDFLARE_API_TOKEN="..."
+export CLOUDFLARE_ACCOUNT_ID="..."
+export CLOUDFLARE_GATEWAY_ID="..."        # For AI Gateway
+
+# AWS Bedrock
+export AWS_ACCESS_KEY_ID="..."
+export AWS_SECRET_ACCESS_KEY="..."
+export AWS_REGION="us-east-1"
+export AWS_BEARER_TOKEN_BEDROCK="..."     # Alternative: Bearer token
+```
+
 ### LOCAL_API_BASE
 **Default:** `http://127.0.0.1:1234/v1`
 

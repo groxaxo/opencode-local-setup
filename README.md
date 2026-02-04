@@ -9,17 +9,43 @@ This repository provides a complete solution for integrating local and cloud AI 
 - **⚡ Auto-Sync on Launch**: Models refresh every time you start OpenCode
 - **📦 Multi-Provider Management**: Configure and use multiple providers simultaneously
 - **🎯 Smart Model Detection**: Auto-detects tool capabilities and model types
-- **🔐 Secure**: API keys stay in your environment, never in config files
+- **🔐 OAuth Support**: GitHub Copilot, Claude Max, GitLab Duo authentication
 - **🛠️ Bash Shortcuts**: Convenient shell functions for common providers
 
 ## 📊 Supported Providers
 
+### Cloud Providers (API Key)
+
+| Provider | Endpoint | Environment Variable | Status |
+|----------|----------|---------------------|--------|
+| **OpenAI** | `https://api.openai.com/v1` | `OPENAI_API_KEY` | ✅ |
+| **Fireworks AI** | `https://api.fireworks.ai/inference/v1` | `FIREWORKS_API_KEY` | ✅ |
+| **xAI (Grok)** | `https://api.x.ai/v1` | `XAI_API_KEY` | ✅ |
+| **DeepSeek** | `https://api.deepseek.com/v1` | `DEEPSEEK_API_KEY` | ✅ |
+| **Groq** | `https://api.groq.com/openai/v1` | `GROQ_API_KEY` | ✅ |
+| **Together AI** | `https://api.together.xyz/v1` | `TOGETHER_API_KEY` | ✅ |
+| **Mistral AI** | `https://api.mistral.ai/v1` | `MISTRAL_API_KEY` | ✅ |
+| **OpenRouter** | `https://openrouter.ai/api/v1` | `OPENROUTER_API_KEY` | ✅ |
+| **Perplexity** | `https://api.perplexity.ai` | `PERPLEXITY_API_KEY` | ✅ |
+| **Google (Gemini)** | `https://generativelanguage.googleapis.com` | `GOOGLE_API_KEY` | ✅ |
+| **Cohere** | `https://api.cohere.ai/v1` | `COHERE_API_KEY` | ✅ |
+| **Vercel AI** | `https://api.vercel.ai/v1` | `VERCEL_API_KEY` | ✅ |
+| **Azure OpenAI** | `https://{resource}.openai.azure.com` | `AZURE_OPENAI_API_KEY` | ✅ |
+| **Amazon Bedrock** | AWS Region-based | AWS credentials | ✅ |
+| **Cloudflare** | Cloudflare Workers AI | `CLOUDFLARE_API_TOKEN` | ✅ |
+
+### OAuth Providers (Requires `opencode auth login`)
+
+| Provider | Auth Method | Command |
+|----------|-------------|---------|
+| **GitHub Copilot** | OAuth Device Flow | `opencode auth login` |
+| **Anthropic (Claude Max)** | OAuth | `opencode auth login` |
+| **GitLab Duo** | OAuth | `opencode auth login` |
+
+### Local Providers (No API Key)
+
 | Provider | Endpoint | Models | Status |
 |----------|----------|--------|--------|
-| **OpenAI** | `https://api.openai.com/v1` | GPT-4, GPT-3.5, etc | ✅ |
-| **Fireworks AI** | `https://api.fireworks.ai/inference/v1` | DeepSeek, Llama, etc | ✅ |
-| **xAI (Grok)** | `https://api.x.ai/v1` | Grok-2, Grok-Beta | ✅ |
-| **DeepSeek** | `https://api.deepseek.com/v1` | DeepSeek-Chat, DeepSeek-Coder | ✅ |
 | **LM Studio** | `http://localhost:1234/v1` | Any loaded GGUF | ✅ |
 | **vLLM** | `http://localhost:8000/v1` | Any served model | ✅ |
 | **Ollama** | `http://localhost:11434/v1` | Local models | ✅ |
@@ -64,11 +90,19 @@ Set these in your `~/.bashrc` or export them before running sync:
 # Your OpenAI-compatible API endpoint
 export LOCAL_API_BASE="http://localhost:1234/v1"  # Default: LM Studio
 
-# Provider API keys (optional, used for cloud providers)
+# Provider API keys (set the ones you need)
 export OPENAI_API_KEY="sk-..."           # For OpenAI
 export FIREWORKS_API_KEY="fw_..."         # For Fireworks AI  
 export XAI_API_KEY="xai-..."              # For xAI/Grok
 export DEEPSEEK_API_KEY="sk-..."          # For DeepSeek
+export GROQ_API_KEY="gsk_..."             # For Groq
+export TOGETHER_API_KEY="..."             # For Together AI
+export MISTRAL_API_KEY="..."              # For Mistral AI
+export OPENROUTER_API_KEY="sk-or-..."     # For OpenRouter
+export PERPLEXITY_API_KEY="pplx-..."      # For Perplexity
+export GOOGLE_API_KEY="..."               # For Google/Gemini
+export COHERE_API_KEY="..."               # For Cohere
+export ANTHROPIC_API_KEY="sk-ant-..."     # For Anthropic (API key method)
 
 # Config path (optional)
 export OPENCODE_CONFIG="/path/to/config.json"
@@ -124,6 +158,7 @@ After syncing multiple providers, your config will look like:
 opencode-local-setup/
 ├── README.md                          # This file
 ├── scripts/
+│   ├── providers.mjs                 # Provider definitions & autodetection
 │   ├── sync-provider.mjs             # Universal provider sync script
 │   ├── sync-all-providers.sh         # Sync all providers at once
 │   ├── install.sh                     # Automated installation
@@ -134,8 +169,60 @@ opencode-local-setup/
 │   └── opencode-multi-provider.json   # Multi-provider example
 ├── docs/
 │   ├── troubleshooting.md             # Common issues
-│   └── api-reference.md              # API documentation
+│   ├── api-reference.md              # API documentation
+│   └── auth-providers.md             # Authentication reference
 └── LICENSE
+```
+
+## 🔐 Authentication
+
+### OAuth Providers
+
+Some providers require OAuth authentication via OpenCode's built-in auth system:
+
+```bash
+# Login to OAuth providers (GitHub Copilot, Claude, GitLab)
+opencode auth login
+
+# List authenticated providers
+opencode auth list
+
+# Logout from a provider
+opencode auth logout
+```
+
+#### GitHub Copilot
+
+1. Run `opencode auth login` and select "GitHub Copilot"
+2. Open the provided URL in your browser
+3. Enter the device code shown in terminal
+4. Authorization completes automatically
+
+#### Anthropic (Claude Max)
+
+1. Run `opencode auth login` and select "Anthropic"
+2. Complete browser-based OAuth flow
+3. Alternatively, use API key: `export ANTHROPIC_API_KEY="sk-ant-..."`
+
+#### GitLab Duo
+
+1. Run `opencode auth login` and select "GitLab"
+2. Complete GitLab OAuth authorization
+3. Requires GitLab Premium/Ultimate with Duo enabled
+
+### API Key Providers
+
+Set environment variables for API key authentication:
+
+```bash
+# Cloud providers
+export OPENAI_API_KEY="sk-..."
+export FIREWORKS_API_KEY="fw_..."
+export DEEPSEEK_API_KEY="sk-..."
+# ... etc (see Environment Variables section)
+
+# Then sync
+./scripts/sync-all-providers.sh
 ```
 
 ## 🚀 Usage
