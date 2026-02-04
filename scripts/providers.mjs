@@ -376,6 +376,17 @@ export const PROVIDERS = {
     isLocal: true,
     notes: "Generic local OpenAI-compatible endpoint.",
   },
+
+  "alibaba": {
+    id: "alibaba",
+    name: "Alibaba DashScope",
+    authType: "api",
+    apiBase: "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    envVars: ["DASHSCOPE_API_KEY", "ALIBABA_API_KEY"],
+    npm: "@ai-sdk/openai-compatible",
+    modelsEndpoint: "/v1/models",
+    notes: "Alibaba Cloud DashScope AI models (Qwen, etc.).",
+  },
 };
 
 /**
@@ -400,6 +411,7 @@ export const PROVIDER_PRIORITY = {
   cloudflare: 15,
   cohere: 16,
   perplexity: 17,
+  alibaba: 18,
   ollama: 50,
   lmstudio: 51,
   vllm: 52,
@@ -478,7 +490,7 @@ export function detectProviderFromUrl(url) {
   if (lowerUrl.includes("localhost:1234") || lowerUrl.includes("127.0.0.1:1234")) return PROVIDERS.lmstudio;
   if (lowerUrl.includes("localhost:8000") || lowerUrl.includes("127.0.0.1:8000")) return PROVIDERS.vllm;
   if (lowerUrl.includes("githubcopilot.com")) return PROVIDERS["github-copilot"];
-  if (lowerUrl.includes("dashscope")) return { ...PROVIDERS.local, id: "alibaba", name: "Alibaba DashScope" };
+  if (lowerUrl.includes("dashscope")) return PROVIDERS.alibaba;
   
   // Default to generic local provider
   return PROVIDERS.local;
