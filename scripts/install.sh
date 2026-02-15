@@ -59,6 +59,11 @@ echo "LOCAL_API_BASE=http://localhost:1234/v1" >> "${CONFIG_DIR}/.env.local"
 cp "${REPO_DIR}/scripts/sync-local-models.mjs" "$SYNC_SCRIPT"
 chmod +x "$SYNC_SCRIPT"
 
+# Install shell wrapper script
+WRAPPER_SCRIPT="${CONFIG_DIR}/opencode-functions.sh"
+cp "${REPO_DIR}/scripts/opencode-wrapper.sh" "$WRAPPER_SCRIPT"
+chmod +x "$WRAPPER_SCRIPT"
+
 # Create basic config if it doesn't exist
 if [ ! -f "${CONFIG_DIR}/opencode.json" ]; then
     echo "📄 Creating base config..."
@@ -79,44 +84,26 @@ if [ ! -f "${CONFIG_DIR}/opencode.json" ]; then
 EOF
 fi
 
-# Add bash functions to ~/.bashrc
+# Add bash wrapper source block to ~/.bashrc
 BASHRC="$HOME/.bashrc"
 if [ -f "$BASHRC" ]; then
-    # Check if functions already exist
-    if grep -q "^opencode ()" "$BASHRC"; then
-        echo "⚠️  Bash functions already exist in $BASHRC"
-        read -p "Overwrite? (y/n): " -n 1 -r
-        echo
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            # Remove old functions
-            sed -i '/^opencode () {/,/^}$/d' "$BASHRC"
-            sed -i '/^deepseek() {/,/^}$/d' "$BASHRC"
-            sed -i '/^local() {/,/^}$/d' "$BASHRC"
-        else
-            echo "Skipping bash function installation"
-        fi
-    fi
-    
-    # Add new functions
-    echo "📄 Adding bash functions to $BASHRC..."
-    cat >> "$BASHRC" << 'EOF'
+    START_MARKER="# >>> opencode-local-setup >>>"
+    END_MARKER="# <<< opencode-local-setup <<<"
 
-# OpenCode wrapper - auto-syncs local models before launch
-opencode () {
-  if [ -f ~/.config/opencode/sync-local-models.mjs ]; then
-    node ~/.config/opencode/sync-local-models.mjs >/dev/null 2>&1 || true
-  fi
-  command opencode "$@"
-}
+    # Remove legacy shortcut that overrides bash's local builtin
+    sed -i '/^local() {/,/^}$/d' "$BASHRC"
 
-# Convenience shortcuts for common providers/models
-deepseek() {
-  opencode -p fireworks -m deepseek-v3p2 "$@"
-}
+    # Replace previously managed block
+    sed -i "/^${START_MARKER}$/,/^${END_MARKER}$/d" "$BASHRC"
 
-local() {
-  opencode -p local "$@"
-}
+    echo "📄 Adding wrapper source block to $BASHRC..."
+    cat >> "$BASHRC" << EOF
+
+$START_MARKER
+if [ -f "$WRAPPER_SCRIPT" ]; then
+  source "$WRAPPER_SCRIPT"
+fi
+$END_MARKER
 EOF
 fi
 
@@ -150,7 +137,7 @@ echo ""
 echo "   4. In OpenCode, use /models to see your local models"
 echo ""
 echo "   5. Use shortcuts:"
-echo "      local <prompt>    # Use local provider"
+echo "      oc-local <prompt> # Use local provider"
 echo "      deepseek <prompt> # Use Fireworks DeepSeek"
 echo ""
 echo "🔧 Troubleshooting:"

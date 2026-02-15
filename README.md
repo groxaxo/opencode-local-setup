@@ -77,7 +77,7 @@ export OPENAI_API_KEY="your-key-here"
 node scripts/sync-provider.mjs
 
 # Use it
-opencode -p openai -m gpt-4o
+opencode -m openai/gpt-4o
 ```
 
 ## 🔧 Configuration
@@ -234,9 +234,9 @@ export DEEPSEEK_API_KEY="sk-..."
 opencode
 
 # Use specific provider and model
-opencode -p openai -m gpt-4o "Your prompt here"
-opencode -p fireworks -m accounts/fireworks/models/deepseek-v3p2
-opencode -p local -m llama3.2:latest
+opencode -m openai/gpt-4o "Your prompt here"
+opencode -m fireworks/accounts/fireworks/models/deepseek-v3p2
+opencode -m local/llama3.2:latest
 ```
 
 ### Sync Methods
@@ -283,7 +283,7 @@ opencode [args]
 ./scripts/sync-all-providers.sh
 
 # Provider-specific shortcuts
-local <prompt>        # Uses local provider
+oc-local <prompt>     # Uses local provider
 deepseek <prompt>     # Uses Fireworks DeepSeek
 ```
 
@@ -316,16 +316,17 @@ See [docs/troubleshooting.md](docs/troubleshooting.md) for:
 
 ### Auto-Sync on Launch
 
-The installation adds a wrapper function to `~/.bashrc`:
+The installation adds a managed source block to `~/.bashrc`:
 
 ```bash
-opencode () {
-  node ~/.config/opencode/sync-local-models.mjs >/dev/null 2>&1 || true
-  command opencode "$@"
-}
+# >>> opencode-local-setup >>>
+if [ -f ~/.config/opencode/opencode-functions.sh ]; then
+  source ~/.config/opencode/opencode-functions.sh
+fi
+# <<< opencode-local-setup <<<
 ```
 
-This ensures models are always fresh when you start OpenCode.
+This keeps shell changes isolated and ensures models are always fresh when you start OpenCode.
 
 ### Cron Job (Optional)
 
@@ -352,9 +353,9 @@ opencode
 # Then use: /models list
 
 # Use different providers for different tasks
-opencode -p openai -m gpt-4o explain quantum computing
-opencode -p local -m llama3.2:latest optimize this code
-opencode -p xai -m grok-2:latest creative writing
+opencode -m openai/gpt-4o explain quantum computing
+opencode -m local/llama3.2:latest optimize this code
+opencode -m xai/grok-2:latest creative writing
 ```
 
 ### CI/CD Integration

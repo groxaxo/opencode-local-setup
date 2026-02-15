@@ -7,6 +7,11 @@
 OPENCODE_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/opencode"
 SYNC_SCRIPT="$OPENCODE_CONFIG_DIR/sync-local-models.mjs"
 
+# Ensure legacy local() shortcut does not override bash's local builtin
+if declare -F local >/dev/null; then
+  unset -f local
+fi
+
 # OpenCode wrapper - auto-syncs local models before launch
 opencode() {
   if [ -f "$SYNC_SCRIPT" ]; then
@@ -25,67 +30,84 @@ sync-models() {
   fi
 }
 
+# Resolve provider/model for current OpenCode CLI (`-m provider/model`)
+oc-provider() {
+  local provider="$1"
+  shift || true
+  local model="${1:-}"
+  if [ -n "$model" ] && [[ "$model" != -* ]]; then
+    if [[ "$model" == */* ]]; then
+      opencode -m "$model" "${@:2}"
+    else
+      opencode -m "$provider/$model" "${@:2}"
+    fi
+  else
+    local default_model
+    default_model="$(command opencode models "$provider" 2>/dev/null | head -n 1)"
+    if [ -z "$default_model" ]; then
+      echo "No models found for provider '$provider'. Run sync or pass a model: ${provider} <model>" >&2
+      return 1
+    fi
+    opencode -m "$default_model" "$@"
+  fi
+}
+
 # ============================================
 # Provider Shortcuts
 # ============================================
 
-# Local provider shortcuts
-local() {
-  local model="${1:-}"
-  if [ -n "$model" ]; then
-    opencode -p local -m "$model" "${@:2}"
-  else
-    opencode -p local "$@"
-  fi
+# Local provider shortcut
+oc-local() {
+  oc-provider local "$@"
 }
 
 # Quick sync-and-launch for local models
 lmstudio() {
   LOCAL_API_BASE="http://localhost:1234/v1" sync-models
-  opencode -p local "$@"
+  oc-local "$@"
 }
 
 ollama() {
   LOCAL_API_BASE="http://localhost:11434/v1" sync-models
-  opencode -p local "$@"
+  oc-local "$@"
 }
 
 vllm() {
   LOCAL_API_BASE="http://localhost:8000/v1" sync-models
-  opencode -p local "$@"
+  oc-local "$@"
 }
 
 # Cloud provider shortcuts
 deepseek() {
-  opencode -p deepseek "$@"
+  opencode -m fireworks/accounts/fireworks/models/deepseek-v3p2 "$@"
 }
 
 fireworks() {
-  opencode -p fireworks "$@"
+  oc-provider fireworks "$@"
 }
 
 groq() {
-  opencode -p groq "$@"
+  oc-provider groq "$@"
 }
 
 together() {
-  opencode -p together "$@"
+  oc-provider together "$@"
 }
 
 mistral() {
-  opencode -p mistral "$@"
+  oc-provider mistral "$@"
 }
 
 xai() {
-  opencode -p xai "$@"
+  oc-provider xai "$@"
 }
 
 openrouter() {
-  opencode -p openrouter "$@"
+  oc-provider openrouter "$@"
 }
 
 perplexity() {
-  opencode -p perplexity "$@"
+  oc-provider perplexity "$@"
 }
 
 # List available local models
@@ -147,7 +169,8 @@ code-auth() {
 # Export functions for use in subshells
 export -f opencode
 export -f sync-models
-export -f local
+export -f oc-provider
+export -f oc-local
 export -f lmstudio
 export -f ollama
 export -f vllm

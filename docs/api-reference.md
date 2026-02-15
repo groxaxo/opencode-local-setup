@@ -273,20 +273,17 @@ Some models may need specific configuration:
 
 ### Basic Usage
 ```bash
-# Use default local model
-opencode -p local
+# Use specific local model
+opencode -m local/llama-3.1-8b-instruct
 
-# Use specific model
-opencode -p local -m llama-3.1-8b-instruct
-
-# Use cloud provider
-opencode -p fireworks
+# Use cloud provider model
+opencode -m fireworks/accounts/fireworks/models/deepseek-v3p2
 ```
 
 ### Using Convenience Functions
 ```bash
 # After installation
-local                      # Uses local provider
+oc-local                   # Uses local provider
 deepseek                   # Uses Fireworks DeepSeek
 ```
 
