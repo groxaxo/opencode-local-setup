@@ -159,8 +159,10 @@ opencode-local-setup/
 ├── README.md                          # This file
 ├── scripts/
 │   ├── providers.mjs                 # Provider definitions & autodetection
+│   ├── sync-core.mjs                 # Shared sync/update helpers
 │   ├── sync-provider.mjs             # Universal provider sync script
 │   ├── sync-on-launch.mjs            # Refreshes configured checkpoints on launch
+│   ├── sync-local-models.mjs         # Legacy local-provider sync entry point
 │   ├── sync-all-providers.sh         # Sync all providers at once
 │   ├── install.sh                     # Automated installation
 │   └── opencode-wrapper.sh           # Shell wrapper functions

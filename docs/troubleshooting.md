@@ -164,7 +164,7 @@ Error: Cannot find module '/home/user/.config/opencode/sync-local-models.mjs'
    cp scripts/providers.mjs ~/.config/opencode/
    cp scripts/sync-core.mjs ~/.config/opencode/
    cp scripts/sync-provider.mjs ~/.config/opencode/
-    cp scripts/sync-on-launch.mjs ~/.config/opencode/
+   cp scripts/sync-on-launch.mjs ~/.config/opencode/
    cp scripts/sync-local-models.mjs ~/.config/opencode/
    ```
 

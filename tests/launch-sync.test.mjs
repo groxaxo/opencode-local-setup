@@ -4,9 +4,11 @@ import fs from "node:fs/promises";
 import http from "node:http";
 import os from "node:os";
 import path from "node:path";
-import { spawnSync } from "node:child_process";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 
 const repoDir = "/home/runner/work/opencode-local-setup/opencode-local-setup";
+const execFileAsync = promisify(execFile);
 
 async function startModelServer(modelsByPath) {
   const server = http.createServer((request, response) => {
@@ -25,7 +27,10 @@ async function startModelServer(modelsByPath) {
   const { port } = server.address();
 
   return {
-    close: () => new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve())),
+    close: () => new Promise((resolve, reject) => {
+      server.closeAllConnections?.();
+      server.close((error) => error ? reject(error) : resolve());
+    }),
     urlFor: (requestPath = "/v1") => `http://127.0.0.1:${port}${requestPath}`,
   };
 }
@@ -63,7 +68,7 @@ test("sync-provider refreshes model names and removes stale models", async () =>
     },
   }, null, 2));
 
-  const result = spawnSync("node", ["scripts/sync-local-models.mjs"], {
+  await execFileAsync("node", ["scripts/sync-local-models.mjs"], {
     cwd: repoDir,
     env: {
       ...process.env,
@@ -74,8 +79,6 @@ test("sync-provider refreshes model names and removes stale models", async () =>
   });
 
   await server.close();
-
-  assert.equal(result.status, 0, result.stderr);
 
   const config = JSON.parse(await fs.readFile(configPath, "utf8"));
   assert.deepEqual(config.provider.local.models, {
@@ -131,7 +134,7 @@ test("sync-on-launch refreshes every configured checkpoint without renaming prov
     },
   }, null, 2));
 
-  const result = spawnSync("node", ["scripts/sync-on-launch.mjs"], {
+  await execFileAsync("node", ["scripts/sync-on-launch.mjs"], {
     cwd: repoDir,
     env: {
       ...process.env,
@@ -141,8 +144,6 @@ test("sync-on-launch refreshes every configured checkpoint without renaming prov
   });
 
   await Promise.all([serverA.close(), serverB.close()]);
-
-  assert.equal(result.status, 0, result.stderr);
 
   const config = JSON.parse(await fs.readFile(configPath, "utf8"));
   assert.equal(config.provider["checkpoint-alpha"].name, "Alpha Checkpoint");
