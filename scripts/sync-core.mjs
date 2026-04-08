@@ -197,5 +197,5 @@ export function syncProviderModels({
 
 export function canSyncBaseURL(baseURL) {
   const detectedProvider = detectProviderFromUrl(baseURL);
-  return detectedProvider?.modelsEndpoint !== null;
+  return detectedProvider?.modelsEndpoint != null;
 }

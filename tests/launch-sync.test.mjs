@@ -69,12 +69,14 @@ test("sync-provider refreshes model names and removes stale models", async () =>
     },
   }, null, 2));
 
-  await execFileAsync("node", ["scripts/sync-local-models.mjs"], {
+  await execFileAsync("node", ["scripts/sync-provider.mjs"], {
     cwd: repoDir,
     env: {
       ...process.env,
       OPENCODE_CONFIG: configPath,
       LOCAL_API_BASE: server.urlFor("/v1"),
+      OPENCODE_PROVIDER_ID: "local",
+      OPENCODE_PROVIDER_NAME: "Local",
     },
     encoding: "utf8",
   });
