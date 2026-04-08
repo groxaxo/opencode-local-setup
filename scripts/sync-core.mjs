@@ -184,7 +184,8 @@ export function syncProviderModels({
     providers[providerKey].models[model.id] = nextModel;
   }
 
-  const removedCount = Object.keys(existingModels).filter((modelId) => !providers[providerKey].models[modelId]).length;
+  const syncedModelIds = new Set(Object.keys(providers[providerKey].models));
+  const removedCount = Object.keys(existingModels).filter((modelId) => !syncedModelIds.has(modelId)).length;
 
   return {
     providerKey,

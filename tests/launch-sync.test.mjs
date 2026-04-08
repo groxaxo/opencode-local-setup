@@ -104,12 +104,12 @@ test("sync-on-launch refreshes every configured checkpoint without renaming prov
   const configPath = path.join(tempDir, "opencode.json");
   const serverA = await startModelServer({
     "/a/models": [
-      { id: "checkpoint-a", name: "Checkpoint A Latest", tool_calls: true },
+      { id: "checkpoint-a", name: "Checkpoint A Latest", function_calling: true },
     ],
   });
   const serverB = await startModelServer({
     "/b/models": [
-      { id: "checkpoint-b", name: "Checkpoint B Latest", tool_calls: false },
+      { id: "checkpoint-b", name: "Checkpoint B Latest", function_calling: false },
     ],
   });
 
