@@ -6,8 +6,9 @@ import os from "node:os";
 import path from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { fileURLToPath } from "node:url";
 
-const repoDir = "/home/runner/work/opencode-local-setup/opencode-local-setup";
+const repoDir = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const execFileAsync = promisify(execFile);
 
 async function startModelServer(modelsByPath) {

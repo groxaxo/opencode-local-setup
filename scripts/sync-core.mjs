@@ -160,9 +160,7 @@ export function syncProviderModels({
 
   if (headers) {
     providers[providerKey].options.headers = headers;
-  }
-
-  if (!headers) {
+  } else {
     delete providers[providerKey].options.headers;
   }
 
