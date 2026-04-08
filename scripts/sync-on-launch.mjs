@@ -53,6 +53,22 @@ function getLaunchTargets(cfg) {
   return targets;
 }
 
+function getDisplayName(target, detectedProvider) {
+  if (target.displayName) {
+    return target.displayName;
+  }
+
+  if (detectedProvider?.name) {
+    return detectedProvider.name;
+  }
+
+  try {
+    return `Local (${new URL(target.baseURL).hostname})`;
+  } catch {
+    return target.providerKey;
+  }
+}
+
 const configPath = getConfigPath();
 
 try {
@@ -82,7 +98,7 @@ try {
         models,
         detectedProvider,
         providerConfig: target.providerConfig,
-        displayName: target.displayName ?? detectedProvider?.name ?? `Local (${new URL(target.baseURL).hostname})`,
+        displayName: getDisplayName(target, detectedProvider),
         headers,
       });
 

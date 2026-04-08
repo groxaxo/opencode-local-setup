@@ -29,7 +29,7 @@ export async function readConfig(configPath = getConfigPath()) {
     const fileContent = await fs.readFile(configPath, "utf8");
     const cfg = JSON.parse(fileContent);
     cfg.$schema ??= DEFAULT_SCHEMA;
-    getProviderMap(cfg);
+    cfg.provider = getProviderMap(cfg);
     return cfg;
   } catch (error) {
     if (error.code === "ENOENT") {

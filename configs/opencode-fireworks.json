@@ -25,7 +25,7 @@
   "agents": {
     "coder": {
       "provider": "fireworks",
-      "model": "fireworks/accounts/fireworks/models/deepseek-v3p2",
+      "model": "accounts/fireworks/models/deepseek-v3p2",
       "contextWindow": 160000
     }
   }
