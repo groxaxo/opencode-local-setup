@@ -9,6 +9,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(dirname "$SCRIPT_DIR")"
 CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/opencode"
 SYNC_SCRIPT="${CONFIG_DIR}/sync-local-models.mjs"
+LAUNCH_SYNC_SCRIPT="${CONFIG_DIR}/sync-on-launch.mjs"
 
 echo "🚀 OpenCode Local AI Provider Setup"
 echo "===================================="
@@ -46,8 +47,8 @@ fi
 echo "📁 Creating config directory: $CONFIG_DIR"
 mkdir -p "$CONFIG_DIR"
 
-# Copy sync script
-echo "📄 Installing sync script..."
+# Copy sync scripts
+echo "📄 Installing sync scripts..."
 echo "# For any OpenAI-compatible API endpoint" > "${CONFIG_DIR}/.env.local"
 echo "# Examples:" >> "${CONFIG_DIR}/.env.local"
 echo "# LOCAL_API_BASE=http://localhost:1234/v1  # LM Studio" >> "${CONFIG_DIR}/.env.local"  
@@ -56,8 +57,10 @@ echo "# LOCAL_API_BASE=http://localhost:8000/v1   # vLLM" >> "${CONFIG_DIR}/.env
 echo "" >> "${CONFIG_DIR}/.env.local"
 echo "LOCAL_API_BASE=http://localhost:1234/v1" >> "${CONFIG_DIR}/.env.local"
 
-cp "${REPO_DIR}/scripts/sync-local-models.mjs" "$SYNC_SCRIPT"
-chmod +x "$SYNC_SCRIPT"
+for script_name in providers.mjs sync-core.mjs sync-provider.mjs sync-local-models.mjs sync-on-launch.mjs; do
+    cp "${REPO_DIR}/scripts/${script_name}" "${CONFIG_DIR}/${script_name}"
+    chmod +x "${CONFIG_DIR}/${script_name}"
+done
 
 # Install shell wrapper script
 WRAPPER_SCRIPT="${CONFIG_DIR}/opencode-functions.sh"
@@ -114,7 +117,7 @@ if [ -f "${CONFIG_DIR}/.env.local" ]; then
     source "${CONFIG_DIR}/.env.local"
 fi
 
-if node "$SYNC_SCRIPT" 2>/dev/null; then
+if node "$LAUNCH_SYNC_SCRIPT" 2>/dev/null; then
     echo "✅ Setup successful!"
 else
     echo "⚠️  Setup complete, but initial sync failed (server might not be running)"
@@ -129,7 +132,7 @@ echo "   1. Edit: $CONFIG_DIR/.env.local"
 echo "      Set LOCAL_API_BASE to your AI server URL"
 echo ""
 echo "   2. Sync models manually (optional):"
-echo "      node $SYNC_SCRIPT"
+echo "      node $LAUNCH_SYNC_SCRIPT"
 echo ""
 echo "   3. Run OpenCode with auto-sync:"
 echo "      opencode"

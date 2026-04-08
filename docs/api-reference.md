@@ -206,15 +206,17 @@ You can configure multiple providers simultaneously:
 
 ## Using Multiple Endpoints
 
-The sync script only updates the "local" provider. For multiple local endpoints, create multiple providers:
+The launch wrapper refreshes every configured provider that has an `options.baseURL` with an OpenAI-compatible `/models` endpoint. That launch-time refresh updates the available models, their display names, and the inferred tool support for each configured checkpoint.
+
+If you want to manually repoint the legacy `local` provider, `sync-local-models.mjs` still supports that flow:
 
 ```bash
 # Sync LM Studio
 cd /path/to/opencode-local-setup
 LOCAL_API_BASE=http://localhost:1234/v1 node scripts/sync-local-models.mjs
 
-# Sync Ollama  
-LOCAL_API_BASE=http://localhost:11434/v1 node scripts/sync-local-models.mjs ~/.opencode-ollama.json
+# Sync Ollama
+OPENCODE_CONFIG=~/.opencode-ollama.json LOCAL_API_BASE=http://localhost:11434/v1 node scripts/sync-local-models.mjs
 
 # Use different configs
 OPENCODE_CONFIG=~/.opencode-lmstudio.json opencode

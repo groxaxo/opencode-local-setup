@@ -159,9 +159,13 @@ Error: Cannot find module '/home/user/.config/opencode/sync-local-models.mjs'
    ./scripts/install.sh
    ```
 
-2. Or manually copy the script:
+2. Or manually copy the scripts:
    ```bash
+   cp scripts/providers.mjs ~/.config/opencode/
+   cp scripts/sync-core.mjs ~/.config/opencode/
    cp scripts/sync-provider.mjs ~/.config/opencode/
+   cp scripts/sync-on-launch.mjs ~/.config/opencode/
+   cp scripts/sync-local-models.mjs ~/.config/opencode/
    ```
 
 ### 8. "Provider not found" or "Model not available"
