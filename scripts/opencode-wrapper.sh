@@ -5,6 +5,7 @@
 
 # Configuration
 OPENCODE_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/opencode"
+LAUNCH_SYNC_SCRIPT="$OPENCODE_CONFIG_DIR/sync-on-launch.mjs"
 SYNC_SCRIPT="$OPENCODE_CONFIG_DIR/sync-local-models.mjs"
 
 # Ensure legacy local() shortcut does not override bash's local builtin
@@ -12,9 +13,11 @@ if declare -F local >/dev/null; then
   unset -f local
 fi
 
-# OpenCode wrapper - auto-syncs local models before launch
+# OpenCode wrapper - auto-syncs configured checkpoints before launch
 opencode() {
-  if [ -f "$SYNC_SCRIPT" ]; then
+  if [ -f "$LAUNCH_SYNC_SCRIPT" ]; then
+    node "$LAUNCH_SYNC_SCRIPT" >/dev/null 2>&1 || true
+  elif [ -f "$SYNC_SCRIPT" ]; then
     node "$SYNC_SCRIPT" >/dev/null 2>&1 || true
   fi
   command opencode "$@"
@@ -26,7 +29,11 @@ sync-models() {
   if [ -n "$api_base" ]; then
     LOCAL_API_BASE="$api_base" node "$SYNC_SCRIPT"
   else
-    node "$SYNC_SCRIPT"
+    if [ -f "$LAUNCH_SYNC_SCRIPT" ]; then
+      node "$LAUNCH_SYNC_SCRIPT"
+    else
+      node "$SYNC_SCRIPT"
+    fi
   fi
 }
 

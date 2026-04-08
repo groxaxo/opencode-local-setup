@@ -6,7 +6,7 @@ This repository provides a complete solution for integrating local and cloud AI 
 
 - **🔌 Universal Provider Support**: Works with **any OpenAI-compatible API endpoint**
 - **🔄 Automatic Model Discovery**: Syncs models from local/cloud servers automatically
-- **⚡ Auto-Sync on Launch**: Models refresh every time you start OpenCode
+- **⚡ Auto-Sync on Launch**: Every configured checkpoint refreshes before OpenCode starts
 - **📦 Multi-Provider Management**: Configure and use multiple providers simultaneously
 - **🎯 Smart Model Detection**: Auto-detects tool capabilities and model types
 - **🔐 OAuth Support**: GitHub Copilot, Claude Max, GitLab Duo authentication
@@ -160,6 +160,7 @@ opencode-local-setup/
 ├── scripts/
 │   ├── providers.mjs                 # Provider definitions & autodetection
 │   ├── sync-provider.mjs             # Universal provider sync script
+│   ├── sync-on-launch.mjs            # Refreshes configured checkpoints on launch
 │   ├── sync-all-providers.sh         # Sync all providers at once
 │   ├── install.sh                     # Automated installation
 │   └── opencode-wrapper.sh           # Shell wrapper functions
@@ -230,7 +231,7 @@ export DEEPSEEK_API_KEY="sk-..."
 ### Basic Usage
 
 ```bash
-# Launch OpenCode (auto-syncs local models)
+# Launch OpenCode (auto-syncs configured checkpoints)
 opencode
 
 # Use specific provider and model
@@ -300,8 +301,9 @@ deepseek <prompt>     # Uses Fireworks DeepSeek
 2. **API Key Resolution**: Automatically picks correct API key for each provider
 3. **Model Discovery**: Queries the `/v1/models` OpenAI-compatible endpoint
 4. **Capability Detection**: Auto-detects if models support tools/functions
-5. **Config Merging**: Preserves existing settings, only adds/updates models
-6. **Auto-Sync**: Bash wrapper ensures sync runs before every OpenCode launch
+5. **Dynamic Model Labels**: Refreshes model display names from each checkpoint response
+6. **Config Merging**: Preserves existing settings while refreshing model catalogs
+7. **Auto-Sync**: Bash wrapper syncs every configured checkpoint before every OpenCode launch
 
 ## 🐛 Troubleshooting
 
@@ -326,7 +328,7 @@ fi
 # <<< opencode-local-setup <<<
 ```
 
-This keeps shell changes isolated and ensures models are always fresh when you start OpenCode.
+This keeps shell changes isolated and refreshes every configured provider/checkpoint so both the model list and model display names stay current when you start OpenCode.
 
 ### Cron Job (Optional)
 
