@@ -46,54 +46,57 @@ test("sync-provider refreshes model names and removes stale models", async () =>
     ],
   });
 
-  await fs.writeFile(configPath, JSON.stringify({
-    $schema: "https://opencode.ai/config.json",
-    provider: {
-      local: {
-        npm: "@ai-sdk/openai-compatible",
-        name: "Local",
-        options: {
-          baseURL: server.urlFor("/v1"),
-        },
-        models: {
-          "latest-chat": {
-            name: "Old Name",
-            tools: false,
+  try {
+    await fs.writeFile(configPath, JSON.stringify({
+      $schema: "https://opencode.ai/config.json",
+      provider: {
+        local: {
+          npm: "@ai-sdk/openai-compatible",
+          name: "Local",
+          options: {
+            baseURL: server.urlFor("/v1"),
           },
-          "stale-model": {
-            name: "Stale",
-            tools: true,
+          models: {
+            "latest-chat": {
+              name: "Old Name",
+              tools: false,
+            },
+            "stale-model": {
+              name: "Stale",
+              tools: true,
+            },
           },
         },
       },
-    },
-  }, null, 2));
+    }, null, 2));
 
-  await execFileAsync("node", ["scripts/sync-provider.mjs"], {
-    cwd: repoDir,
-    env: {
-      ...process.env,
-      OPENCODE_CONFIG: configPath,
-      LOCAL_API_BASE: server.urlFor("/v1"),
-      OPENCODE_PROVIDER_ID: "local",
-      OPENCODE_PROVIDER_NAME: "Local",
-    },
-    encoding: "utf8",
-  });
+    await execFileAsync("node", ["scripts/sync-provider.mjs"], {
+      cwd: repoDir,
+      env: {
+        ...process.env,
+        OPENCODE_CONFIG: configPath,
+        LOCAL_API_BASE: server.urlFor("/v1"),
+        OPENCODE_PROVIDER_ID: "local",
+        OPENCODE_PROVIDER_NAME: "Local",
+      },
+      encoding: "utf8",
+    });
 
-  await server.close();
-
-  const config = JSON.parse(await fs.readFile(configPath, "utf8"));
-  assert.deepEqual(config.provider.local.models, {
-    "latest-chat": {
-      name: "Latest Chat",
-      tools: true,
-    },
-    "embed-small": {
-      name: "Embed Small",
-      tools: false,
-    },
-  });
+    const config = JSON.parse(await fs.readFile(configPath, "utf8"));
+    assert.deepEqual(config.provider.local.models, {
+      "latest-chat": {
+        name: "Latest Chat",
+        tools: true,
+      },
+      "embed-small": {
+        name: "Embed Small",
+        tools: false,
+      },
+    });
+  } finally {
+    await server.close();
+    await fs.rm(tempDir, { recursive: true, force: true });
+  }
 });
 
 test("sync-on-launch refreshes every configured checkpoint without renaming providers", async () => {
@@ -110,57 +113,60 @@ test("sync-on-launch refreshes every configured checkpoint without renaming prov
     ],
   });
 
-  await fs.writeFile(configPath, JSON.stringify({
-    $schema: "https://opencode.ai/config.json",
-    provider: {
-      "checkpoint-alpha": {
-        npm: "@ai-sdk/openai-compatible",
-        name: "Alpha Checkpoint",
-        options: {
-          baseURL: serverA.urlFor("/a"),
-        },
-        models: {
-          "checkpoint-a": {
-            name: "Outdated Alpha",
-            tools: false,
+  try {
+    await fs.writeFile(configPath, JSON.stringify({
+      $schema: "https://opencode.ai/config.json",
+      provider: {
+        "checkpoint-alpha": {
+          npm: "@ai-sdk/openai-compatible",
+          name: "Alpha Checkpoint",
+          options: {
+            baseURL: serverA.urlFor("/a"),
+          },
+          models: {
+            "checkpoint-a": {
+              name: "Outdated Alpha",
+              tools: false,
+            },
           },
         },
-      },
-      "checkpoint-beta": {
-        npm: "@ai-sdk/openai-compatible",
-        name: "Beta Checkpoint",
-        options: {
-          baseURL: serverB.urlFor("/b"),
+        "checkpoint-beta": {
+          npm: "@ai-sdk/openai-compatible",
+          name: "Beta Checkpoint",
+          options: {
+            baseURL: serverB.urlFor("/b"),
+          },
+          models: {},
         },
-        models: {},
       },
-    },
-  }, null, 2));
+    }, null, 2));
 
-  await execFileAsync("node", ["scripts/sync-on-launch.mjs"], {
-    cwd: repoDir,
-    env: {
-      ...process.env,
-      OPENCODE_CONFIG: configPath,
-    },
-    encoding: "utf8",
-  });
+    await execFileAsync("node", ["scripts/sync-on-launch.mjs"], {
+      cwd: repoDir,
+      env: {
+        ...process.env,
+        OPENCODE_CONFIG: configPath,
+      },
+      encoding: "utf8",
+    });
 
-  await Promise.all([serverA.close(), serverB.close()]);
-
-  const config = JSON.parse(await fs.readFile(configPath, "utf8"));
-  assert.equal(config.provider["checkpoint-alpha"].name, "Alpha Checkpoint");
-  assert.equal(config.provider["checkpoint-beta"].name, "Beta Checkpoint");
-  assert.deepEqual(config.provider["checkpoint-alpha"].models, {
-    "checkpoint-a": {
-      name: "Checkpoint A Latest",
-      tools: true,
-    },
-  });
-  assert.deepEqual(config.provider["checkpoint-beta"].models, {
-    "checkpoint-b": {
-      name: "Checkpoint B Latest",
-      tools: false,
-    },
-  });
+    const config = JSON.parse(await fs.readFile(configPath, "utf8"));
+    assert.equal(config.provider["checkpoint-alpha"].name, "Alpha Checkpoint");
+    assert.equal(config.provider["checkpoint-beta"].name, "Beta Checkpoint");
+    assert.deepEqual(config.provider["checkpoint-alpha"].models, {
+      "checkpoint-a": {
+        name: "Checkpoint A Latest",
+        tools: true,
+      },
+    });
+    assert.deepEqual(config.provider["checkpoint-beta"].models, {
+      "checkpoint-b": {
+        name: "Checkpoint B Latest",
+        tools: false,
+      },
+    });
+  } finally {
+    await Promise.all([serverA.close(), serverB.close()]);
+    await fs.rm(tempDir, { recursive: true, force: true });
+  }
 });
