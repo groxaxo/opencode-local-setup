@@ -7,6 +7,7 @@ import path from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
+import { getAutoDisplayName } from "../scripts/sync-core.mjs";
 
 const repoDir = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const execFileAsync = promisify(execFile);
@@ -146,6 +147,7 @@ test("sync-on-launch refreshes every configured checkpoint without renaming prov
       env: {
         ...process.env,
         OPENCODE_CONFIG: configPath,
+        OPENCODE_TAILSCALE_DISCOVERY: "0",
       },
       encoding: "utf8",
     });
@@ -167,6 +169,69 @@ test("sync-on-launch refreshes every configured checkpoint without renaming prov
     });
   } finally {
     await Promise.all([serverA.close(), serverB.close()]);
+    await fs.rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test("getAutoDisplayName prefixes Tailscale endpoints", () => {
+  assert.equal(
+    getAutoDisplayName("http://100.100.100.100:1234/v1", "Remote OpenAI-Compatible"),
+    "Tailscale - 100.100.100.100:1234",
+  );
+});
+
+test("sync-on-launch auto-discovers Tailscale peers in the configured port range", async () => {
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "launch-sync-tailscale-"));
+  const configPath = path.join(tempDir, "opencode.json");
+  const server = await startModelServer({
+    "/v1/models": [
+      { id: "qwen-remote", name: "Qwen Remote", function_calling: true },
+    ],
+  });
+
+  try {
+    await fs.writeFile(configPath, JSON.stringify({
+      $schema: "https://opencode.ai/config.json",
+      provider: {},
+    }, null, 2));
+
+    const tailscaleStatus = {
+      Peer: {
+        testPeer: {
+          HostName: "gpu-box",
+          Online: true,
+          TailscaleIPs: ["127.0.0.1"],
+        },
+      },
+    };
+
+    await execFileAsync("node", ["scripts/sync-on-launch.mjs"], {
+      cwd: repoDir,
+      env: {
+        ...process.env,
+        OPENCODE_CONFIG: configPath,
+        OPENCODE_TAILSCALE_STATUS_JSON: JSON.stringify(tailscaleStatus),
+        OPENCODE_TAILSCALE_PORTS: String(new URL(server.urlFor("/v1")).port),
+        OPENCODE_TAILSCALE_TIMEOUT_MS: "50",
+        OPENCODE_TAILSCALE_HTTP_TIMEOUT_MS: "500",
+      },
+      encoding: "utf8",
+    });
+
+    const discoveredPort = String(new URL(server.urlFor("/v1")).port);
+    const config = JSON.parse(await fs.readFile(configPath, "utf8"));
+    const providerKey = `tailscale-gpu-box-${discoveredPort}`;
+
+    assert.equal(config.provider[providerKey].name, `Tailscale - gpu-box:${discoveredPort}`);
+    assert.equal(config.provider[providerKey].options.baseURL, `http://127.0.0.1:${discoveredPort}/v1`);
+    assert.deepEqual(config.provider[providerKey].models, {
+      "qwen-remote": {
+        name: "Qwen Remote",
+        tools: true,
+      },
+    });
+  } finally {
+    await server.close();
     await fs.rm(tempDir, { recursive: true, force: true });
   }
 });

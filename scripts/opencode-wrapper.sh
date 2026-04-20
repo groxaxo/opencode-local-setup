@@ -13,7 +13,7 @@ if declare -F local >/dev/null; then
   unset -f local
 fi
 
-# OpenCode wrapper - auto-syncs configured checkpoints before launch
+# OpenCode wrapper - auto-syncs configured checkpoints before launch and after exit
 opencode() {
   if [ -f "$LAUNCH_SYNC_SCRIPT" ]; then
     node "$LAUNCH_SYNC_SCRIPT" >/dev/null 2>&1 || true
@@ -21,6 +21,13 @@ opencode() {
     node "$SYNC_SCRIPT" >/dev/null 2>&1 || true
   fi
   command opencode "$@"
+  local _ec=$?
+  if [ -f "$LAUNCH_SYNC_SCRIPT" ]; then
+    node "$LAUNCH_SYNC_SCRIPT" >/dev/null 2>&1 || true
+  elif [ -f "$SYNC_SCRIPT" ]; then
+    node "$SYNC_SCRIPT" >/dev/null 2>&1 || true
+  fi
+  return $_ec
 }
 
 # Sync models manually

@@ -377,6 +377,19 @@ export const PROVIDERS = {
     notes: "Generic local OpenAI-compatible endpoint.",
   },
 
+  "remote-openai-compat": {
+    id: "remote-openai-compat",
+    name: "Remote OpenAI-Compatible",
+    authType: "optional",
+    apiBase: null, // Configured via REMOTE_API_BASE or inline in config
+    envVars: ["REMOTE_API_KEY"],
+    npm: "@ai-sdk/openai-compatible",
+    modelsEndpoint: "/v1/models",
+    isLocal: false,
+    isRemote: true,
+    notes: "Generic remote/LAN OpenAI-compatible endpoint (e.g. llama.cpp server on another machine).",
+  },
+
   "alibaba": {
     id: "alibaba",
     name: "Alibaba DashScope",
@@ -415,6 +428,7 @@ export const PROVIDER_PRIORITY = {
   ollama: 50,
   lmstudio: 51,
   vllm: 52,
+  "remote-openai-compat": 53,
   local: 99,
 };
 
@@ -462,12 +476,57 @@ export function getConfiguredProviders() {
   });
 }
 
+function isOctet(value) {
+  const numeric = Number(value);
+  return Number.isInteger(numeric) && numeric >= 0 && numeric <= 255;
+}
+
+export function isTailscaleHost(hostname) {
+  if (!hostname) return false;
+
+  const loweredHostname = hostname.toLowerCase();
+  if (loweredHostname.endsWith(".ts.net")) {
+    return true;
+  }
+
+  const match = loweredHostname.match(/^100\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (!match) {
+    return false;
+  }
+
+  const [, secondOctet, thirdOctet, fourthOctet] = match;
+  return Number(secondOctet) >= 64
+    && Number(secondOctet) <= 127
+    && isOctet(thirdOctet)
+    && isOctet(fourthOctet);
+}
+
+export function isPrivateNetworkHost(hostname) {
+  if (!hostname) return false;
+
+  if (isTailscaleHost(hostname)) {
+    return true;
+  }
+
+  const loweredHostname = hostname.toLowerCase();
+  return /^192\.168\.\d{1,3}\.\d{1,3}$/.test(loweredHostname)
+    || /^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(loweredHostname)
+    || /^172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}$/.test(loweredHostname);
+}
+
 /**
  * Detect provider from base URL
  */
 export function detectProviderFromUrl(url) {
   if (!url) return null;
-  
+
+  let hostname = "";
+  try {
+    hostname = new URL(url).hostname;
+  } catch {
+    hostname = "";
+  }
+
   const lowerUrl = url.toLowerCase();
   
   if (lowerUrl.includes("api.openai.com")) return PROVIDERS.openai;
@@ -491,7 +550,11 @@ export function detectProviderFromUrl(url) {
   if (lowerUrl.includes("localhost:8000") || lowerUrl.includes("127.0.0.1:8000")) return PROVIDERS.vllm;
   if (lowerUrl.includes("githubcopilot.com")) return PROVIDERS["github-copilot"];
   if (lowerUrl.includes("dashscope")) return PROVIDERS.alibaba;
-  
+
+  if (isPrivateNetworkHost(hostname)) {
+    return PROVIDERS["remote-openai-compat"];
+  }
+
   // Default to generic local provider
   return PROVIDERS.local;
 }

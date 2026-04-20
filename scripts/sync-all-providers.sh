@@ -34,6 +34,22 @@ PROVIDERS=(
   "vllm|http://127.0.0.1:8000/v1|NO_KEY_NEEDED"
 )
 
+# Remote/LAN Providers - Add your own remote llama.cpp, vLLM, LM Studio, etc. instances
+# Format: "provider_key|url|NO_KEY_NEEDED_or_env_var"
+# Uncomment and edit to match your setup:
+# REMOTE_PROVIDERS=(
+#   "tailscale-gpu-a-1234|http://100.100.100.100:1234/v1|NO_KEY_NEEDED"
+#   "tailscale-gpu-a-1235|http://100.100.100.100:1235/v1|NO_KEY_NEEDED"
+# )
+REMOTE_PROVIDERS=()
+# Load remote providers from env var if set (format: "key|url,key|url,...")
+if [ -n "$OPENCODE_REMOTE_PROVIDERS" ]; then
+  IFS=',' read -ra REMOTE_PROV_ARRAY <<< "$OPENCODE_REMOTE_PROVIDERS"
+  for rp in "${REMOTE_PROV_ARRAY[@]}"; do
+    REMOTE_PROVIDERS+=("$rp")
+  done
+fi
+
 # OAuth providers that require special auth flow (via `opencode auth login`)
 OAUTH_PROVIDERS=(
   "github-copilot|GitHub Copilot|opencode auth login"
@@ -116,6 +132,54 @@ for provider in "${PROVIDERS[@]}"; do
     ((failed_count++))
   fi
 done
+
+# Sync Remote/LAN Providers
+if [ ${#REMOTE_PROVIDERS[@]} -gt 0 ]; then
+  echo ""
+  echo "📋 Syncing Remote/LAN Providers..."
+  echo "==========================================="
+
+  for provider in "${REMOTE_PROVIDERS[@]}"; do
+    IFS='|' read -r name baseurl env_key <<< "$provider"
+    
+    echo ""
+    echo "🔍 Provider: $name"
+    echo "   URL: $baseurl"
+    
+    if [[ "$env_key" == "NO_KEY_NEEDED" ]]; then
+      api_key=""
+      echo "   Key: Not required (remote/LAN)"
+      if ! curl -s --connect-timeout 3 "$baseurl/models" >/dev/null 2>&1; then
+        echo "   ⏭️  Skipped (server not reachable)"
+        ((skipped_count++))
+        continue
+      fi
+    else
+      api_key="${!env_key}"
+      if [[ -z "$api_key" ]]; then
+        echo "   Key: ❌ Not configured ($env_key)"
+        ((skipped_count++))
+        continue
+      fi
+      echo "   Key: ✅ Found (${#api_key} chars)"
+    fi
+
+    ((available_count++))
+    
+    output=$(LOCAL_API_BASE="$baseurl" OPENCODE_PROVIDER_ID="$name" node "$SCRIPT_DIR/sync-provider.mjs" 2>&1)
+    exit_code=$?
+    
+    if [[ $exit_code -eq 0 ]] && [[ $output != *"❌"* ]]; then
+      model_count=$(echo "$output" | grep -oP "Found \K[0-9]+" | head -1 || echo "0")
+      echo "   ✅ Synced: $model_count models"
+      ((synced_count++))
+    else
+      error_msg=$(echo "$output" | grep "❌" | head -1 || echo "Unknown error")
+      echo "   ❌ Failed: $error_msg"
+      ((failed_count++))
+    fi
+  done
+fi
 
 echo ""
 echo "==========================================="

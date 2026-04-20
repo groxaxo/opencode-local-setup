@@ -6,7 +6,7 @@ This repository provides a complete solution for integrating local and cloud AI 
 
 - **🔌 Universal Provider Support**: Works with **any OpenAI-compatible API endpoint**
 - **🔄 Automatic Model Discovery**: Syncs models from local/cloud servers automatically
-- **⚡ Auto-Sync on Launch**: Every configured checkpoint refreshes before OpenCode starts
+- **⚡ Auto-Sync on Launch & Exit**: Every configured checkpoint refreshes before OpenCode starts and after it closes
 - **📦 Multi-Provider Management**: Configure and use multiple providers simultaneously
 - **🎯 Smart Model Detection**: Auto-detects tool capabilities and model types
 - **🔐 OAuth Support**: GitHub Copilot, Claude Max, GitLab Duo authentication
@@ -49,6 +49,15 @@ This repository provides a complete solution for integrating local and cloud AI 
 | **LM Studio** | `http://localhost:1234/v1` | Any loaded GGUF | ✅ |
 | **vLLM** | `http://localhost:8000/v1` | Any served model | ✅ |
 | **Ollama** | `http://localhost:11434/v1` | Local models | ✅ |
+
+### Remote/LAN Providers (No API Key or Optional)
+
+| Provider | Endpoint | Models | Status |
+|----------|----------|--------|--------|
+| **Remote llama.cpp** | `http://<host>:<port>/v1` | Any served GGUF | ✅ |
+| **Remote LM Studio** | `http://<host>:1234/v1` | Any loaded GGUF | ✅ |
+| **Remote vLLM** | `http://<host>:8000/v1` | Any served model | ✅ |
+| **Tailscale/Wireguard** | `http://100.x.x.x:<port>/v1` | Any remote model | ✅ |
 
 ## ⚡ Quick Start
 
@@ -169,7 +178,8 @@ opencode-local-setup/
 ├── configs/
 │   ├── opencode.json.example          # Basic local setup
 │   ├── opencode-fireworks.json        # Fireworks provider
-│   └── opencode-multi-provider.json   # Multi-provider example
+│   ├── opencode-multi-provider.json   # Multi-provider example
+│   └── opencode-remote-providers.json # Remote/LAN provider example
 ├── docs/
 │   ├── troubleshooting.md             # Common issues
 │   ├── api-reference.md              # API documentation
@@ -274,6 +284,20 @@ export LOCAL_API_BASE="http://localhost:1234/v1"
 node scripts/sync-provider.mjs
 ```
 
+#### 4. Sync Remote/LAN Providers
+
+```bash
+# Sync a remote llama.cpp server over Tailscale
+export LOCAL_API_BASE="http://100.100.100.100:1234/v1"
+export OPENCODE_PROVIDER_ID="tailscale-gpu-a-1234"
+export OPENCODE_PROVIDER_NAME="Tailscale - gpu-a:1234"
+node scripts/sync-provider.mjs
+
+# Or use sync-all-providers.sh with OPENCODE_REMOTE_PROVIDERS
+export OPENCODE_REMOTE_PROVIDERS="tailscale-gpu-a-1234|http://100.100.100.100:1234/v1|NO_KEY_NEEDED,tailscale-gpu-a-1235|http://100.100.100.100:1235/v1|NO_KEY_NEEDED"
+./scripts/sync-all-providers.sh
+```
+
 ### Provider Shortcuts
 
 Installation adds these to your `~/.bashrc`:
@@ -305,7 +329,7 @@ deepseek <prompt>     # Uses Fireworks DeepSeek
 4. **Capability Detection**: Auto-detects if models support tools/functions
 5. **Dynamic Model Labels**: Refreshes model display names from each checkpoint response
 6. **Config Merging**: Preserves existing settings while refreshing model catalogs
-7. **Auto-Sync**: Bash wrapper syncs every configured checkpoint before every OpenCode launch
+7. **Auto-Sync**: Bash wrapper syncs every configured checkpoint before launch and after exit
 
 ## 🐛 Troubleshooting
 
@@ -330,7 +354,9 @@ fi
 # <<< opencode-local-setup <<<
 ```
 
-This keeps shell changes isolated and refreshes every configured provider/checkpoint so both the model list and model display names stay current when you start OpenCode.
+This keeps shell changes isolated and refreshes every configured provider/checkpoint so both the model list and model display names stay current when you start and close OpenCode.
+
+If `tailscale` is installed, launch sync also auto-discovers online Tailscale peers and probes OpenAI-compatible endpoints on ports `1200-1300`, `8000-8100`, and `8880-8900`. Discovered providers are added as `Tailscale - <host>:<port>`.
 
 ### Cron Job (Optional)
 

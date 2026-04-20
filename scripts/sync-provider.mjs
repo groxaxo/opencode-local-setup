@@ -1,6 +1,7 @@
 import { detectProviderFromUrl } from "./providers.mjs";
 import {
   fetchModels,
+  getAutoDisplayName,
   getConfigPath,
   normalizeBaseURL,
   readConfig,
@@ -12,7 +13,8 @@ import {
 const baseURL = normalizeBaseURL(process.env.LOCAL_API_BASE ?? "http://127.0.0.1:1234/v1");
 const detectedProvider = detectProviderFromUrl(baseURL);
 const providerName = process.env.OPENCODE_PROVIDER_ID || detectedProvider?.id || "local";
-const displayName = process.env.OPENCODE_PROVIDER_NAME || detectedProvider?.name || "Local Provider";
+const displayName = process.env.OPENCODE_PROVIDER_NAME
+  || getAutoDisplayName(baseURL, detectedProvider?.name || "Local Provider");
 const configPath = getConfigPath();
 
 console.log(`🔄 Syncing models from: ${baseURL}`);

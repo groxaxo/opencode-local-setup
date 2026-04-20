@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { detectProviderFromUrl, getApiKeyForProvider } from "./providers.mjs";
+import { detectProviderFromUrl, getApiKeyForProvider, isTailscaleHost } from "./providers.mjs";
 
 const DEFAULT_SCHEMA = "https://opencode.ai/config.json";
 
@@ -15,6 +15,35 @@ export function getConfigPath() {
 
 export function normalizeBaseURL(baseURL) {
   return baseURL?.replace(/\/$/, "");
+}
+
+export function parseBaseURL(baseURL) {
+  try {
+    return new URL(normalizeBaseURL(baseURL));
+  } catch {
+    return null;
+  }
+}
+
+export function isTailscaleBaseURL(baseURL) {
+  return isTailscaleHost(parseBaseURL(baseURL)?.hostname);
+}
+
+export function getAutoDisplayName(baseURL, fallbackName = "Local Provider") {
+  const parsedBaseURL = parseBaseURL(baseURL);
+  if (!parsedBaseURL) {
+    return fallbackName;
+  }
+
+  const host = parsedBaseURL.hostname;
+  const port = parsedBaseURL.port;
+  const hostLabel = port ? `${host}:${port}` : host;
+
+  if (isTailscaleHost(host)) {
+    return `Tailscale - ${hostLabel}`;
+  }
+
+  return fallbackName;
 }
 
 export function createDefaultConfig() {
@@ -106,6 +135,10 @@ export function resolveRequestHeaders({ detectedProvider, providerConfig }) {
 
   if (!apiKey && detectedProvider?.isLocal) {
     apiKey = process.env.LOCAL_API_KEY || process.env.API_KEY;
+  }
+
+  if (!apiKey && detectedProvider?.id === "remote-openai-compat") {
+    apiKey = process.env.REMOTE_API_KEY || process.env.LOCAL_API_KEY || process.env.API_KEY;
   }
 
   if (!apiKey && !detectedProvider) {
