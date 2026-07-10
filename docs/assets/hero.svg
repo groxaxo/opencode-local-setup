@@ -1,6 +1,6 @@
 <svg width="1440" height="620" viewBox="0 0 1440 620" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
-  <title id="title">OpenCode Local Setup</title>
-  <desc id="desc">A polished terminal-inspired banner connecting OpenCode to local and remote AI model servers.</desc>
+  <title id="title">Run your own AI models inside OpenCode</title>
+  <desc id="desc">A friendly terminal-inspired banner showing local and remote model servers connecting automatically to OpenCode.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1440" y2="620" gradientUnits="userSpaceOnUse">
       <stop stop-color="#07111F"/>
@@ -45,56 +45,55 @@
     <circle cx="808" cy="132" r="5" fill="#66E3B4"/>
     <text x="838" y="138" fill="#A9BCD0" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15">opencode</text>
 
-    <text x="755" y="196" fill="#67E7C1" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">$ sync-models</text>
-    <text x="755" y="233" fill="#DBE8F5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15">✓ lmstudio</text>
-    <text x="910" y="233" text-anchor="end" fill="#8DA4BA" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14">4 models</text>
-    <text x="755" y="267" fill="#DBE8F5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15">✓ ollama</text>
-    <text x="910" y="267" text-anchor="end" fill="#8DA4BA" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14">7 models</text>
-    <text x="755" y="301" fill="#DBE8F5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15">✓ vllm</text>
-    <text x="910" y="301" text-anchor="end" fill="#8DA4BA" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14">2 models</text>
+    <text x="755" y="196" fill="#67E7C1" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">$ opencode</text>
+    <text x="755" y="234" fill="#DBE8F5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15">✓ LM Studio found</text>
+    <text x="910" y="234" text-anchor="end" fill="#8DA4BA" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14">4 models</text>
+    <text x="755" y="270" fill="#DBE8F5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15">✓ model list updated</text>
+    <text x="755" y="306" fill="#DBE8F5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15">✓ secrets protected</text>
 
     <rect x="748" y="335" width="204" height="1" fill="#7C96AE" fill-opacity="0.24"/>
-    <text x="755" y="379" fill="#69A7FF" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">$ opencode</text>
-    <text x="755" y="416" fill="#DBE8F5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15">local models ready</text>
-    <rect x="755" y="445" width="116" height="28" rx="8" fill="#152B3E"/>
-    <text x="813" y="464" text-anchor="middle" fill="#9AEBD5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13">secure env refs</text>
+    <text x="755" y="379" fill="#69A7FF" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">Ready to code.</text>
+    <text x="755" y="416" fill="#A8BACD" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14">Choose a model with /models</text>
+    <rect x="755" y="445" width="132" height="28" rx="8" fill="#152B3E"/>
+    <text x="821" y="464" text-anchor="middle" fill="#9AEBD5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13">nothing else to edit</text>
   </g>
 
   <g>
     <rect x="1148" y="166" width="212" height="80" rx="18" fill="#0E1D2D" stroke="#69A7FF" stroke-opacity="0.34"/>
-    <text x="1172" y="198" fill="#C8D7E6" font-family="Inter, ui-sans-serif, system-ui" font-size="17" font-weight="650">LM Studio</text>
-    <text x="1172" y="222" fill="#7891A9" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13">127.0.0.1:1234</text>
+    <text x="1172" y="198" fill="#C8D7E6" font-family="Inter, ui-sans-serif, system-ui" font-size="17" font-weight="650">Your laptop</text>
+    <text x="1172" y="222" fill="#7891A9" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13">LM Studio · Ollama</text>
 
     <rect x="1148" y="270" width="212" height="80" rx="18" fill="#0E1D2D" stroke="#79C4FF" stroke-opacity="0.34"/>
-    <text x="1172" y="302" fill="#C8D7E6" font-family="Inter, ui-sans-serif, system-ui" font-size="17" font-weight="650">Ollama · vLLM</text>
-    <text x="1172" y="326" fill="#7891A9" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13">OpenAI-compatible</text>
+    <text x="1172" y="302" fill="#C8D7E6" font-family="Inter, ui-sans-serif, system-ui" font-size="17" font-weight="650">Your GPU server</text>
+    <text x="1172" y="326" fill="#7891A9" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13">vLLM · llama.cpp</text>
 
     <rect x="1148" y="374" width="212" height="80" rx="18" fill="#0E1D2D" stroke="#B281FF" stroke-opacity="0.34"/>
-    <text x="1172" y="406" fill="#C8D7E6" font-family="Inter, ui-sans-serif, system-ui" font-size="17" font-weight="650">LAN · Tailscale</text>
-    <text x="1172" y="430" fill="#7891A9" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13">remote GPU servers</text>
+    <text x="1172" y="406" fill="#C8D7E6" font-family="Inter, ui-sans-serif, system-ui" font-size="17" font-weight="650">Another machine</text>
+    <text x="1172" y="430" fill="#7891A9" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13">LAN · Tailscale</text>
   </g>
 
   <g>
-    <rect x="76" y="76" width="128" height="34" rx="17" fill="#65E8C4" fill-opacity="0.12" stroke="#65E8C4" stroke-opacity="0.35"/>
-    <text x="140" y="99" text-anchor="middle" fill="#83EED2" font-family="Inter, ui-sans-serif, system-ui" font-size="14" font-weight="700" letter-spacing="1.4">LOCAL FIRST</text>
-    <text x="76" y="181" fill="#F2F7FC" font-family="Inter, ui-sans-serif, system-ui" font-size="64" font-weight="760" letter-spacing="-2">Your models.</text>
-    <text x="76" y="253" fill="url(#accent)" font-family="Inter, ui-sans-serif, system-ui" font-size="64" font-weight="760" letter-spacing="-2">One clean setup.</text>
-    <text x="76" y="317" fill="#A8BACD" font-family="Inter, ui-sans-serif, system-ui" font-size="23">Secure model discovery and launch-time sync for OpenCode.</text>
+    <rect x="76" y="76" width="228" height="34" rx="17" fill="#65E8C4" fill-opacity="0.12" stroke="#65E8C4" stroke-opacity="0.35"/>
+    <text x="190" y="99" text-anchor="middle" fill="#83EED2" font-family="Inter, ui-sans-serif, system-ui" font-size="14" font-weight="700" letter-spacing="1.2">YOUR MODELS · YOUR MACHINE</text>
+    <text x="76" y="181" fill="#F2F7FC" font-family="Inter, ui-sans-serif, system-ui" font-size="61" font-weight="760" letter-spacing="-2">Run your own AI</text>
+    <text x="76" y="253" fill="url(#accent)" font-family="Inter, ui-sans-serif, system-ui" font-size="61" font-weight="760" letter-spacing="-2">inside OpenCode.</text>
+    <text x="76" y="317" fill="#A8BACD" font-family="Inter, ui-sans-serif, system-ui" font-size="22">Connect the model servers you already use.</text>
+    <text x="76" y="350" fill="#8198AE" font-family="Inter, ui-sans-serif, system-ui" font-size="18">No stale model lists. No secrets copied into config.</text>
 
-    <g transform="translate(76 373)">
-      <rect width="188" height="50" rx="14" fill="#65E8C4"/>
-      <text x="94" y="32" text-anchor="middle" fill="#07131D" font-family="Inter, ui-sans-serif, system-ui" font-size="16" font-weight="750">Install in one command</text>
-      <rect x="204" width="174" height="50" rx="14" fill="#11243A" stroke="#6B91B6" stroke-opacity="0.4"/>
-      <text x="291" y="32" text-anchor="middle" fill="#C5D5E5" font-family="Inter, ui-sans-serif, system-ui" font-size="16" font-weight="650">macOS · Linux</text>
+    <g transform="translate(76 391)">
+      <rect width="170" height="50" rx="14" fill="#65E8C4"/>
+      <text x="85" y="32" text-anchor="middle" fill="#07131D" font-family="Inter, ui-sans-serif, system-ui" font-size="16" font-weight="750">Set up in minutes</text>
+      <rect x="186" width="190" height="50" rx="14" fill="#11243A" stroke="#6B91B6" stroke-opacity="0.4"/>
+      <text x="281" y="32" text-anchor="middle" fill="#C5D5E5" font-family="Inter, ui-sans-serif, system-ui" font-size="16" font-weight="650">macOS · Linux</text>
     </g>
 
-    <g transform="translate(76 475)">
+    <g transform="translate(76 495)">
       <circle cx="9" cy="9" r="9" fill="#65E8C4" fill-opacity="0.16"/>
       <path d="M5 9.3L8 12.2L13.5 6.5" stroke="#65E8C4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      <text x="28" y="15" fill="#9DB0C4" font-family="Inter, ui-sans-serif, system-ui" font-size="16">Latest OpenCode schema</text>
-      <circle cx="241" cy="9" r="9" fill="#69A7FF" fill-opacity="0.16"/>
-      <path d="M237 9.3L240 12.2L245.5 6.5" stroke="#69A7FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      <text x="260" y="15" fill="#9DB0C4" font-family="Inter, ui-sans-serif, system-ui" font-size="16">Secrets stay out of config</text>
+      <text x="28" y="15" fill="#9DB0C4" font-family="Inter, ui-sans-serif, system-ui" font-size="16">Automatic discovery</text>
+      <circle cx="218" cy="9" r="9" fill="#69A7FF" fill-opacity="0.16"/>
+      <path d="M214 9.3L217 12.2L222.5 6.5" stroke="#69A7FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="237" y="15" fill="#9DB0C4" font-family="Inter, ui-sans-serif, system-ui" font-size="16">Private by default</text>
     </g>
   </g>
 </svg>
